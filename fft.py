@@ -45,6 +45,22 @@ img_back2 = cv2.idft(f_ishift2) #idft - inverse dft
 #inverse dft converts back from frequency to image domain
 img_back2 = cv2.magnitude(img_back2[:,:,0], img_back2[:,:,1])
 
+#band pass filter  
+r_out, r_in = 120, 30
+mask3 = np.zeros((rows, cols, 2), np.uint8)
+center = (crow, ccol)
+x, y = np.ogrid[:rows, :cols]
+distance = (x - crow)**2 + (y - ccol)**2
+mask3[(distance >= r_in**2) & (distance <= r_out**2)] = 1
+
+#apply mask 3
+fshift3 = d_shift * mask3 #fft transformed image values multiplied by mask values
+f_ishift3 = np.fft.ifftshift(fshift3) #ifftshift - inverse fft
+img_back3 = cv2.idft(f_ishift3) #idft - inverse dft
+#inverse dft converts back from frequency to image domain
+img_back3 = cv2.magnitude(img_back3[:,:,0], img_back3[:,:,1])
+
+
 fig = plt.figure(figsize=(15, 10))
 
 ax1 = fig.add_subplot(2,3,1)
@@ -66,6 +82,10 @@ ax4.title.set_text('After inverse FFT')
 ax5 = fig.add_subplot(2,3,5)
 ax5.imshow(img_back2, cmap='gray')
 ax5.title.set_text('Inverse FFT with inverted mask')
+
+ax6 = fig.add_subplot(2,3,6)
+ax6.imshow(img_back3, cmap='gray')
+ax6.title.set_text('Band pass filter')
 
 plt.tight_layout()
 plt.show()
